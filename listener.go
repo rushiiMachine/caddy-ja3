@@ -85,16 +85,15 @@ func (l *tlsClientHelloListener) Accept() (net.Conn, error) {
 	return RewindConn(conn, ch)
 }
 
-// TODO: fix cache leak
 // Close implements net.Listener
-//func (l *tlsClientHelloListener) Close() error {
-//	addr := l.Listener.Addr().String()
-//
-//	l.cache.ClearJA3(addr)
-//	l.log.Debug("Disposing of JA3 for" + addr)
-//
-//	return nil
-//}
+func (l *tlsClientHelloListener) Close() error {
+	addr := l.Listener.Addr().String()
+
+	l.cache.ClearJA3(addr)
+	l.log.Debug("Disposing of JA3 for " + addr)
+
+	return l.Listener.Close()
+}
 
 func ReadClientHello(r io.Reader) (ch []byte, err error) {
 	// Obtained from https://github.com/gaukas/clienthellod/blob/7cce34b88b314256c8759998f6192860f6f6ede5/clienthello.go#L68
