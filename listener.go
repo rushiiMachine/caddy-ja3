@@ -35,9 +35,6 @@ func (JA3Listener) CaddyModule() caddy.ModuleInfo {
 }
 
 func (l *JA3Listener) Provision(ctx caddy.Context) error {
-	if !ctx.AppIsConfigured(CacheAppId) {
-		return errors.New("global cache is not configured")
-	}
 	a, err := ctx.App(CacheAppId)
 	if err != nil {
 		return err
