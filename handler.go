@@ -1,7 +1,6 @@
 package caddy_ja3
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/caddyserver/caddy/v2"
@@ -33,9 +32,6 @@ func (JA3Handler) CaddyModule() caddy.ModuleInfo {
 
 // Provision implements caddy.Provisioner
 func (h *JA3Handler) Provision(ctx caddy.Context) error {
-	if !ctx.AppIsConfigured(CacheAppId) {
-		return errors.New("global cache is not configured")
-	}
 	a, err := ctx.App(CacheAppId)
 	if err != nil {
 		return err

@@ -4,9 +4,6 @@ import (
 	"sync"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/caddyserver/caddy/v2/caddyconfig"
-	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
-	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/dreadl0ck/ja3"
 	"github.com/dreadl0ck/tlsx"
 )
@@ -17,22 +14,16 @@ const (
 
 func init() {
 	caddy.RegisterModule(Cache{})
-	httpcaddyfile.RegisterGlobalOption("ja3", func(d *caddyfile.Dispenser, existingVal any) (any, error) {
-		app := &Cache{
-			ja3:     make(map[string]string),
-			ja3Lock: sync.RWMutex{},
-		}
-
-		return httpcaddyfile.App{
-			Name:  CacheAppId,
-			Value: caddyconfig.JSON(app, nil),
-		}, nil
-	})
 }
 
 type Cache struct {
 	ja3     map[string]string
 	ja3Lock sync.RWMutex
+}
+
+func (c *Cache) Provision(ctx caddy.Context) error {
+	c.ja3 = make(map[string]string)
+	return nil
 }
 
 func (c *Cache) SetClientHello(addr string, ch []byte) error {
@@ -90,5 +81,6 @@ func (c *Cache) Stop() error {
 
 // Interface guards
 var (
-	_ caddy.App = (*Cache)(nil)
+	_ caddy.App         = (*Cache)(nil)
+	_ caddy.Provisioner = (*Cache)(nil)
 )

@@ -17,7 +17,6 @@ You can add a http_redirect to automatically redirect `http` -> `https` like sho
 ```
 {
   order ja3 before respond # change this to whatever idk
-  ja3
   servers {
      listener_wrappers {
        http_redirect
