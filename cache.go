@@ -4,8 +4,8 @@ import (
 	"sync"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/dreadl0ck/ja3"
 	"github.com/dreadl0ck/tlsx"
+	"github.com/rushiiMachine/caddy-ja3/ja3"
 )
 
 const (
@@ -35,7 +35,7 @@ func (c *Cache) SetClientHello(addr string, ch []byte) error {
 		return err
 	}
 
-	c.ja3[addr] = ja3.DigestHex(parsedCh)
+	c.ja3[addr] = ja3.BareToDigestHex(ja3.SortedBare(parsedCh))
 	return nil
 }
 

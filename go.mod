@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/caddyserver/caddy/v2 v2.6.4
-	github.com/dreadl0ck/ja3 v1.0.4
 	github.com/dreadl0ck/tlsx v1.0.1-google-gopacket
 	go.uber.org/zap v1.24.0
 )
