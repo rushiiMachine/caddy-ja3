@@ -12,6 +12,8 @@ const (
 	CacheAppId = "ja3.cache"
 )
 
+var SortJA3 bool
+
 func init() {
 	caddy.RegisterModule(Cache{})
 }
@@ -19,7 +21,6 @@ func init() {
 type Cache struct {
 	ja3     map[string]string
 	ja3Lock sync.RWMutex
-	SortJA3 bool
 }
 
 func (c *Cache) Provision(ctx caddy.Context) error {
@@ -36,7 +37,7 @@ func (c *Cache) SetClientHello(addr string, ch []byte) error {
 		return err
 	}
 
-	c.ja3[addr] = ja3.BareToDigestHex(ja3.Bare(parsedCh, c.SortJA3))
+	c.ja3[addr] = ja3.BareToDigestHex(ja3.Bare(parsedCh, SortJA3))
 	return nil
 }
 

@@ -52,14 +52,8 @@ func (h *JA3Handler) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				if !d.NextArg() {
 					return d.ArgErr()
 				}
-				switch d.Val() {
-				case "true":
-					h.cache.SortJA3 = true
-				case "false":
-					h.cache.SortJA3 = false
-				default:
-					return d.Errf("invalid value for sort_ja3: %s", d.Val())
-				}
+				SortJA3 = true
+
 			default:
 				return d.Errf("invalid directive: %s", d.Val())
 			}
