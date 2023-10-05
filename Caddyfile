@@ -1,7 +1,6 @@
 {
   debug
   order ja3 before respond
-  ja3
   servers {
      listener_wrappers {
        http_redirect
@@ -12,7 +11,7 @@
 }
 
 localhost:2020 {
-  ja3
+  ja3 sort_ja3 true
   tls internal
   respond "Your JA3: {header.ja3}"
 }

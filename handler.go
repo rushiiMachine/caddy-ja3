@@ -54,9 +54,9 @@ func (h *JA3Handler) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				}
 				switch d.Val() {
 				case "true":
-					h.cache.SortJA3 = true
+					SortJA3 = true
 				case "false":
-					h.cache.SortJA3 = false
+					SortJA3 = false
 				default:
 					return d.Errf("invalid value for sort_ja3: %s", d.Val())
 				}
