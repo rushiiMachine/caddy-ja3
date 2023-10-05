@@ -1,6 +1,7 @@
 package caddy_ja3
 
 import (
+	"log"
 	"sync"
 
 	"github.com/caddyserver/caddy/v2"
@@ -35,6 +36,9 @@ func (c *Cache) SetClientHello(addr string, ch []byte) error {
 	parsedCh := &tlsx.ClientHelloBasic{}
 	if err := parsedCh.Unmarshal(ch); err != nil {
 		return err
+	}
+	if SortJA3 {
+		log.Println("Sorted JA3s enabled")
 	}
 
 	c.ja3[addr] = ja3.BareToDigestHex(ja3.Bare(parsedCh, SortJA3))
