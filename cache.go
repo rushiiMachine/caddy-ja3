@@ -4,8 +4,8 @@ import (
 	"sync"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/dreadl0ck/ja3"
 	"github.com/dreadl0ck/tlsx"
+	"github.com/rushiiMachine/caddy-ja3/ja3"
 )
 
 const (
@@ -15,6 +15,8 @@ const (
 func init() {
 	caddy.RegisterModule(Cache{})
 }
+
+var SortJA3 bool
 
 type Cache struct {
 	ja3     map[string]string
@@ -35,7 +37,7 @@ func (c *Cache) SetClientHello(addr string, ch []byte) error {
 		return err
 	}
 
-	c.ja3[addr] = ja3.DigestHex(parsedCh)
+	c.ja3[addr] = ja3.BareToDigestHex(ja3.Bare(parsedCh, SortJA3))
 	return nil
 }
 
