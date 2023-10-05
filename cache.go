@@ -19,6 +19,7 @@ func init() {
 type Cache struct {
 	ja3     map[string]string
 	ja3Lock sync.RWMutex
+	SortJA3 bool
 }
 
 func (c *Cache) Provision(ctx caddy.Context) error {
@@ -35,7 +36,7 @@ func (c *Cache) SetClientHello(addr string, ch []byte) error {
 		return err
 	}
 
-	c.ja3[addr] = ja3.BareToDigestHex(ja3.SortedBare(parsedCh))
+	c.ja3[addr] = ja3.BareToDigestHex(ja3.Bare(parsedCh, c.SortJA3))
 	return nil
 }
 
