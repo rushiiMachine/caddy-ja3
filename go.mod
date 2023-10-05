@@ -1,4 +1,4 @@
-module github.com/rushiiMachine/caddy-ja3
+module github.com/fidraC/caddy-ja3
 
 go 1.20
 

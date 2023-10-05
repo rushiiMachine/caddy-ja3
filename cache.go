@@ -5,7 +5,7 @@ import (
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/dreadl0ck/tlsx"
-	"github.com/rushiiMachine/caddy-ja3/ja3"
+	"github.com/fidraC/caddy-ja3/ja3"
 )
 
 const (

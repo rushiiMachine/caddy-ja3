@@ -6,7 +6,7 @@ A caddy plugin to get JA3 fingerprints from requests as a header.
 
 ```shell
 xcaddy build \
-  --with github.com/rushiiMachine/caddy-ja3
+  --with github.com/fidraC/caddy-ja3
 ```
 
 ## Sample Caddyfile
