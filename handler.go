@@ -50,7 +50,7 @@ func (h *JA3Handler) UnmarshalCaddyfile(_ *caddyfile.Dispenser) error {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler
 func (h *JA3Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request, next caddyhttp.Handler) error {
-	if req.TLS.HandshakeComplete {
+	if req.TLS.HandshakeComplete && req.ProtoMajor < 3 { // Check that this uses TLS and < HTTP/3
 		ja3 := h.cache.GetJA3(req.RemoteAddr)
 
 		if ja3 == nil {

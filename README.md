@@ -14,6 +14,10 @@ xcaddy build \
 Note that this enforces HTTPS (TLS).\
 You can add a http_redirect to automatically redirect `http` -> `https` like shown below.
 
+TLS `ClientHello`s do not exist on HTTP/3 connections.
+No `ja3` header will be present on such requests.
+Unless another way is used to fingerprint HTTP/3 aka. QUIC connections, it's recommended to disable HTTP/3.
+
 ```
 {
   order ja3 before respond # change this to whatever idk
