@@ -12,29 +12,35 @@ import (
 )
 
 func init() {
-	caddy.RegisterModule(JA3Listener{})
+	caddy.RegisterModule(JA3ListenerWrapper{})
 }
 
-type JA3Listener struct {
+type JA3ListenerWrapper struct {
 	cache *Cache
 	log   *zap.Logger
 }
 
-type tlsClientHelloListener struct {
+type clientHelloListener struct {
 	net.Listener
 	cache *Cache
 	log   *zap.Logger
 }
 
+type clientHelloConnListener struct {
+	net.Conn
+	cache *Cache
+	log   *zap.Logger
+}
+
 // CaddyModule implements caddy.Module
-func (JA3Listener) CaddyModule() caddy.ModuleInfo {
+func (JA3ListenerWrapper) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "caddy.listeners.ja3",
-		New: func() caddy.Module { return new(JA3Listener) },
+		New: func() caddy.Module { return new(JA3ListenerWrapper) },
 	}
 }
 
-func (l *JA3Listener) Provision(ctx caddy.Context) error {
+func (l *JA3ListenerWrapper) Provision(ctx caddy.Context) error {
 	a, err := ctx.App(CacheAppId)
 	if err != nil {
 		return err
@@ -46,8 +52,8 @@ func (l *JA3Listener) Provision(ctx caddy.Context) error {
 }
 
 // WrapListener implements caddy.ListenerWrapper
-func (l *JA3Listener) WrapListener(ln net.Listener) net.Listener {
-	return &tlsClientHelloListener{
+func (l *JA3ListenerWrapper) WrapListener(ln net.Listener) net.Listener {
+	return &clientHelloListener{
 		ln,
 		l.cache,
 		l.log,
@@ -55,22 +61,22 @@ func (l *JA3Listener) WrapListener(ln net.Listener) net.Listener {
 }
 
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler
-func (l *JA3Listener) UnmarshalCaddyfile(_ *caddyfile.Dispenser) error {
+func (l *JA3ListenerWrapper) UnmarshalCaddyfile(_ *caddyfile.Dispenser) error {
 	// no-op impl
 	return nil
 }
 
 // Accept implements net.Listener
-func (l *tlsClientHelloListener) Accept() (net.Conn, error) {
+func (l *clientHelloListener) Accept() (net.Conn, error) {
 	conn, err := l.Listener.Accept()
 	if err != nil {
 		return conn, err
 	}
 
-	ch, err := ReadClientHello(conn)
+	raw, err := ReadClientHello(conn)
 	if err == nil {
 		addr := conn.RemoteAddr().String()
-		if err := l.cache.SetClientHello(addr, ch); err != nil {
+		if err := l.cache.SetClientHello(addr, raw); err != nil {
 			l.log.Error("Failed to cache JA3 for "+addr, zap.Error(err))
 		}
 
@@ -79,17 +85,21 @@ func (l *tlsClientHelloListener) Accept() (net.Conn, error) {
 		l.log.Debug("Failed to read ClientHello for "+conn.RemoteAddr().String(), zap.Error(err))
 	}
 
-	return RewindConn(conn, ch)
+	return RewindConn(&clientHelloConnListener{
+		conn,
+		l.cache,
+		l.log,
+	}, raw)
 }
 
-// Close implements net.Listener
-func (l *tlsClientHelloListener) Close() error {
-	addr := l.Listener.Addr().String()
+// Close implements net.Conn
+func (l *clientHelloConnListener) Close() error {
+	addr := l.Conn.RemoteAddr().String()
 
 	l.cache.ClearJA3(addr)
 	l.log.Debug("Disposing of JA3 for " + addr)
 
-	return l.Listener.Close()
+	return l.Conn.Close()
 }
 
 func ReadClientHello(r io.Reader) (ch []byte, err error) {
@@ -116,7 +126,7 @@ func ReadClientHello(r io.Reader) (ch []byte, err error) {
 
 // Interface guards
 var (
-	_ caddy.Provisioner     = (*JA3Listener)(nil)
-	_ caddy.ListenerWrapper = (*JA3Listener)(nil)
-	_ caddyfile.Unmarshaler = (*JA3Listener)(nil)
+	_ caddy.Provisioner     = (*JA3ListenerWrapper)(nil)
+	_ caddy.ListenerWrapper = (*JA3ListenerWrapper)(nil)
+	_ caddyfile.Unmarshaler = (*JA3ListenerWrapper)(nil)
 )
