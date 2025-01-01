@@ -116,12 +116,14 @@ func (l *clientHelloConnListener) Close() error {
 	return l.Conn.Close()
 }
 
-func ReadClientHello(r io.Reader) (ch []byte, err error) {
+// ReadClientHello reads as much of a ClientHello as possible and returns it.
+// If any error was encountered, then an error is returned as well and the raw bytes are not a full ClientHello.
+func ReadClientHello(r io.Reader) (raw []byte, err error) {
 	// Obtained from https://github.com/gaukas/clienthellod/blob/7cce34b88b314256c8759998f6192860f6f6ede5/clienthello.go#L68
 
 	// Read a TLS record
 	// Read exactly 5 bytes from the reader
-	raw := make([]byte, 5)
+	raw = make([]byte, 5)
 	if _, err = io.ReadFull(r, raw); err != nil {
 		return
 	}
