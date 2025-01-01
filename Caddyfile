@@ -1,18 +1,18 @@
 {
-  debug
-  order ja3 before respond
-  ja3
-  servers {
-     listener_wrappers {
-       http_redirect
-       ja3
-       tls
-     }
-  }
+    debug
+    order ja3 before respond
+    servers {
+        protocols h1 h2
+        listener_wrappers {
+            http_redirect
+            ja3
+            tls
+        }
+    }
 }
 
-localhost:2020 {
-  ja3
-  tls internal
-  respond "Your JA3: {header.ja3}"
+localhost {
+    ja3
+    tls internal
+    respond "Your JA3: {header.ja3}"
 }
