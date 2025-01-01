@@ -5,7 +5,6 @@ import (
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/dreadl0ck/tlsx"
-	"github.com/rushiiMachine/caddy-ja3/ja3"
 )
 
 const (
@@ -37,7 +36,7 @@ func (c *Cache) SetClientHello(addr string, ch []byte) error {
 		return err
 	}
 
-	c.ja3[addr] = ja3.BareToDigestHex(ja3.Bare(parsedCh, SortJA3))
+	c.ja3[addr] = BareToDigestHex(BareJa3(parsedCh, c.config.SortExtensions))
 	return nil
 }
 
@@ -61,13 +60,8 @@ func (c *Cache) GetJA3(addr string) *string {
 // CaddyModule implements caddy.Module
 func (Cache) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID: CacheAppId,
-		New: func() caddy.Module {
-			return &Cache{
-				ja3:     make(map[string]string),
-				ja3Lock: sync.RWMutex{},
-			}
-		},
+		ID:  CacheAppId,
+		New: func() caddy.Module { return new(Cache) },
 	}
 }
 

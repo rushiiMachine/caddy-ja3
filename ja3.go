@@ -1,4 +1,4 @@
-package ja3
+package caddy_ja3
 
 import (
 	"bytes"
@@ -11,8 +11,6 @@ import (
 )
 
 var (
-	// Debug indicates whether we run in debug mode.
-	Debug        = false
 	sepValueByte = byte(45)
 	sepFieldByte = byte(44)
 
@@ -36,7 +34,7 @@ func BareToDigestHex(bare []byte) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func Bare(hello *tlsx.ClientHelloBasic, shouldSort bool) []byte {
+func BareJa3(hello *tlsx.ClientHelloBasic, shouldSort bool) []byte {
 	var (
 		maxPossibleBufferLength = 5 + 1 + // Version = uint16 => maximum = 65536 = 5chars + 1 field sep
 			(5+1)*len(hello.CipherSuites) + // CipherSuite = uint16 => maximum = 65536 = 5chars
@@ -50,24 +48,22 @@ func Bare(hello *tlsx.ClientHelloBasic, shouldSort bool) []byte {
 	buffer = strconv.AppendInt(buffer, int64(hello.HandshakeVersion), 10)
 	buffer = append(buffer, sepFieldByte)
 
-	/*
-	 *	Cipher Suites
-	 */
+	////////// Cipher Suites //////////
 
-	// collect cipher suites
+	// Collect cipher suites
 	lastElem := len(hello.CipherSuites) - 1
 	if len(hello.CipherSuites) > 1 {
 		for _, e := range hello.CipherSuites[:lastElem] {
-			// filter GREASE values
+			// Filter GREASE values
 			if !greaseValues[uint16(e)] {
 				buffer = strconv.AppendInt(buffer, int64(e), 10)
 				buffer = append(buffer, sepValueByte)
 			}
 		}
 	}
-	// append last element if cipher suites are not empty
+	// Append last element if cipher suites are not empty
 	if lastElem != -1 {
-		// filter GREASE values
+		// Filter GREASE values
 		if !greaseValues[uint16(hello.CipherSuites[lastElem])] {
 			buffer = strconv.AppendInt(buffer, int64(hello.CipherSuites[lastElem]), 10)
 		}
@@ -75,41 +71,38 @@ func Bare(hello *tlsx.ClientHelloBasic, shouldSort bool) []byte {
 	buffer = bytes.TrimSuffix(buffer, []byte{sepValueByte})
 	buffer = append(buffer, sepFieldByte)
 
-	/*
-	 *	Extensions
-	 */
-	// sort extensions
+	////////// Extensions //////////
+
+	// Sort extensions
 	if shouldSort {
 		sort.Slice(hello.AllExtensions, func(i, j int) bool {
 			return hello.AllExtensions[i] < hello.AllExtensions[j]
 		})
 	}
-	// collect extensions
+	// Collect extensions
 	lastElem = len(hello.AllExtensions) - 1
 	if len(hello.AllExtensions) > 1 {
 		for _, e := range hello.AllExtensions[:lastElem] {
 			// filter GREASE values
-			if !greaseValues[uint16(e)] {
+			if !greaseValues[e] {
 				buffer = strconv.AppendInt(buffer, int64(e), 10)
 				buffer = append(buffer, sepValueByte)
 			}
 		}
 	}
-	// append last element if extensions are not empty
+	// Append last element if extensions are not empty
 	if lastElem != -1 {
-		// filter GREASE values
-		if !greaseValues[uint16(hello.AllExtensions[lastElem])] {
+		// Filter GREASE values
+		if !greaseValues[hello.AllExtensions[lastElem]] {
 			buffer = strconv.AppendInt(buffer, int64(hello.AllExtensions[lastElem]), 10)
 		}
 	}
 	buffer = bytes.TrimSuffix(buffer, []byte{sepValueByte})
 	buffer = append(buffer, sepFieldByte)
 
-	/*
-	 *	Supported Groups
-	 */
+	////////// Supported Groups //////////
 
-	// collect supported groups
+	// Collect supported groups
 	lastElem = len(hello.SupportedGroups) - 1
 	if len(hello.SupportedGroups) > 1 {
 		for _, e := range hello.SupportedGroups[:lastElem] {
@@ -120,9 +113,9 @@ func Bare(hello *tlsx.ClientHelloBasic, shouldSort bool) []byte {
 			}
 		}
 	}
-	// append last element if supported groups are not empty
+	// Append last element if supported groups are not empty
 	if lastElem != -1 {
-		// filter GREASE values
+		// Filter GREASE values
 		if !greaseValues[uint16(hello.SupportedGroups[lastElem])] {
 			buffer = strconv.AppendInt(buffer, int64(hello.SupportedGroups[lastElem]), 10)
 		}
@@ -130,11 +123,9 @@ func Bare(hello *tlsx.ClientHelloBasic, shouldSort bool) []byte {
 	buffer = bytes.TrimSuffix(buffer, []byte{sepValueByte})
 	buffer = append(buffer, sepFieldByte)
 
-	/*
-	 *	Supported Points
-	 */
+	////////// Supported Points //////////
 
-	// collect supported points
+	// Collect supported points
 	lastElem = len(hello.SupportedPoints) - 1
 	if len(hello.SupportedPoints) > 1 {
 		for _, e := range hello.SupportedPoints[:lastElem] {
@@ -142,7 +133,7 @@ func Bare(hello *tlsx.ClientHelloBasic, shouldSort bool) []byte {
 			buffer = append(buffer, sepValueByte)
 		}
 	}
-	// append last element if supported points are not empty
+	// Append last element if supported points are not empty
 	if lastElem != -1 {
 		buffer = strconv.AppendInt(buffer, int64(hello.SupportedPoints[lastElem]), 10)
 	}
