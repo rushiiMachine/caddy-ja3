@@ -3,6 +3,7 @@ package caddy_ja3
 import (
 	"encoding/binary"
 	"errors"
+	"github.com/caddyserver/caddy/v2/modules/caddytls"
 	"io"
 	"net"
 
@@ -48,6 +49,19 @@ func (l *JA3ListenerWrapper) Provision(ctx caddy.Context) error {
 
 	l.cache = a.(*Cache)
 	l.log = ctx.Logger(l)
+
+	// Disable TLS session resumption via session tickets
+	app, err := ctx.App("tls")
+	if err != nil {
+		return err
+	}
+	tlsApp := app.(*caddytls.TLS)
+	if tlsApp.SessionTickets == nil {
+		tlsApp.SessionTickets = new(caddytls.SessionTicketService)
+	}
+	tlsApp.SessionTickets.Disabled = true
+	l.log.Debug("adjusted config: disabled TLS session tickets")
+
 	return nil
 }
 
