@@ -44,29 +44,8 @@ func (h *JA3Handler) Provision(ctx caddy.Context) error {
 
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler
 func (h *JA3Handler) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
-	for d.Next() {
-		// Look for a boolean directive with the name "sort_ja3"
-		if d.NextArg() {
-			switch d.Val() {
-			case "sort_ja3":
-				if !d.NextArg() {
-					return d.ArgErr()
-				}
-				switch d.Val() {
-				case "true":
-					SortJA3 = true
-				case "false":
-					SortJA3 = false
-				default:
-					return d.Errf("invalid value for sort_ja3: %s", d.Val())
-				}
-			default:
-				return d.Errf("invalid directive: %s", d.Val())
-			}
-		}
-	}
+	// no-op impl
 	return nil
-
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler

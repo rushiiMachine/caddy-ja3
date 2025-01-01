@@ -15,14 +15,19 @@ func init() {
 	caddy.RegisterModule(Cache{})
 }
 
-var SortJA3 bool
-
 type Cache struct {
+	config  *Config
 	ja3     map[string]string
 	ja3Lock sync.RWMutex
 }
 
 func (c *Cache) Provision(ctx caddy.Context) error {
+	app, err := ctx.App(ConfigAppId)
+	if err != nil {
+		return err
+	}
+
+	c.config = app.(*Config)
 	c.ja3 = make(map[string]string)
 	return nil
 }
