@@ -54,9 +54,9 @@ func (h *JA3Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request, next c
 		ja3 := h.cache.GetJA3(req.RemoteAddr)
 
 		if ja3 == nil {
-			h.log.Error("ClientHello missing from cache for " + req.RemoteAddr)
+			h.log.Error("ClientHello missing from cache", zap.String("addr", req.RemoteAddr))
 		} else {
-			h.log.Debug("Attaching JA3 to request for " + req.RemoteAddr)
+			h.log.Debug("Attaching JA3 to request", zap.String("addr", req.RemoteAddr))
 			req.Header.Add("JA3", *ja3)
 		}
 	}

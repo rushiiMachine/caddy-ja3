@@ -91,12 +91,12 @@ func (l *clientHelloListener) Accept() (net.Conn, error) {
 	if err == nil {
 		addr := conn.RemoteAddr().String()
 		if err := l.cache.SetClientHello(addr, raw); err != nil {
-			l.log.Error("Failed to cache JA3 for "+addr, zap.Error(err))
+			l.log.Error("Failed to cache JA3 for connection", zap.String("addr", addr), zap.Error(err))
 		}
 
-		l.log.Debug("Cached JA3 for " + conn.RemoteAddr().String())
+		l.log.Debug("Cached JA3 for connection", zap.String("addr", conn.RemoteAddr().String()))
 	} else {
-		l.log.Debug("Failed to read ClientHello for "+conn.RemoteAddr().String(), zap.Error(err))
+		l.log.Debug("Failed to read ClientHello from connection", zap.String("addr", conn.RemoteAddr().String()), zap.Error(err))
 	}
 
 	return RewindConn(&clientHelloConnListener{
@@ -111,7 +111,7 @@ func (l *clientHelloConnListener) Close() error {
 	addr := l.Conn.RemoteAddr().String()
 
 	l.cache.ClearJA3(addr)
-	l.log.Debug("Disposing of JA3 for " + addr)
+	l.log.Debug("Disposing of JA3 for connection", zap.String("addr", addr))
 
 	return l.Conn.Close()
 }
