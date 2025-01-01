@@ -137,7 +137,7 @@ func ReadClientHello(r io.Reader) (raw []byte, err error) {
 	// Read exactly length bytes from the reader
 	raw = append(raw, make([]byte, binary.BigEndian.Uint16(raw[3:5]))...)
 	_, err = io.ReadFull(r, raw[5:])
-	return raw, nil
+	return raw, err
 }
 
 // Interface guards

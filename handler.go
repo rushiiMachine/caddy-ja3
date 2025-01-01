@@ -43,7 +43,7 @@ func (h *JA3Handler) Provision(ctx caddy.Context) error {
 }
 
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler
-func (h *JA3Handler) UnmarshalCaddyfile(_ *caddyfile.Dispenser) error {
+func (h *JA3Handler) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	// no-op impl
 	return nil
 }

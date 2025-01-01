@@ -1,6 +1,9 @@
 {
     debug
     order ja3 before respond
+    ja3 {
+        sort_extensions
+    }
     servers {
         protocols h1 h2
         listener_wrappers {

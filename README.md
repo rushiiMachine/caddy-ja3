@@ -27,6 +27,11 @@ config option internally.
 {
     # If using a different responder like reverse_proxy, change this accordingly
     order ja3 before respond
+    ja3 {
+        # (Optional) Sort TLS extensions to counteract randomizing on modern browsers
+        # More info: https://github.com/salesforce/ja3/issues/88
+        sort_extensions
+    }
     servers {
         # Disable HTTP/3
         protocols h1 h2

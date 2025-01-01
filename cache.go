@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/dreadl0ck/ja3"
 	"github.com/dreadl0ck/tlsx"
 )
 
@@ -17,11 +16,18 @@ func init() {
 }
 
 type Cache struct {
+	config  *Config
 	ja3     map[string]string
 	ja3Lock sync.RWMutex
 }
 
 func (c *Cache) Provision(ctx caddy.Context) error {
+	app, err := ctx.App(ConfigAppId)
+	if err != nil {
+		return err
+	}
+
+	c.config = app.(*Config)
 	c.ja3 = make(map[string]string)
 	return nil
 }
@@ -35,7 +41,7 @@ func (c *Cache) SetClientHello(addr string, ch []byte) error {
 		return err
 	}
 
-	c.ja3[addr] = ja3.DigestHex(parsedCh)
+	c.ja3[addr] = BareToDigestHex(BareJa3(parsedCh, c.config.SortExtensions))
 	return nil
 }
 
@@ -59,13 +65,8 @@ func (c *Cache) GetJA3(addr string) *string {
 // CaddyModule implements caddy.Module
 func (Cache) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID: CacheAppId,
-		New: func() caddy.Module {
-			return &Cache{
-				ja3:     make(map[string]string),
-				ja3Lock: sync.RWMutex{},
-			}
-		},
+		ID:  CacheAppId,
+		New: func() caddy.Module { return new(Cache) },
 	}
 }
 
